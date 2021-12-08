@@ -2,54 +2,149 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
-int seg(string input){
-    int valueCounter = 0;
-    for (int i = 0; i < input.length(); i++)
+string seg2(string input){
+    char ch;
+    string tmp = input;
+    int length = tmp.length();
+    for(int i = 0; i < length; i++)
     {
-        valueCounter += input[i]; 
-    }
-    int zero = 'a' + 'b' + 'c' + 'e'+ 'f'+ 'g'; 
-    int one = 'c' + 'f';
-    int two = 'a' + 'c' + 'd' + 'e' + 'g';
-    int three = two - 'e' + 'f';
-    int four = one + 'd' + 'b';
-    int five = 'a' + 'b' + 'd' + 'f' + 'g';
-    int six = five + 'e';
-    int seven = one + 'a';
-    int eight = zero + 'd';
-    int nine = eight - 'e';
-    vector<int> tmp;
-    //usch
-    tmp.push_back(zero); tmp.push_back(one); tmp.push_back(two); tmp.push_back(three); tmp.push_back(four); tmp.push_back(five); tmp.push_back(six); tmp.push_back(seven); tmp.push_back(eight); tmp.push_back(nine);
-    int val;
-    for (int i = 0; i < tmp.size(); i++)
-    {
-        if (valueCounter == tmp[i])
+        for(int j = 0; j < (length - 1); j++)
         {
-            val = tmp[i];
+            if(input[j]>input[j+1])
+            {
+                ch = input[j];
+                input[j] = input[j+1];
+                input[j+1] = ch;
+            }
+        }
+    }
+    
+    if (input == "abcefg") return "0";
+    else if(input == "cf" || input.length() == 2) return "1";
+    else if(input == "acdeg") return "2";
+    else if(input == "acdfg") return "3";
+    else if(input == "bcdf" ||input.length() == 4) return "4";
+    else if(input == "abdfg") return "5";
+    else if(input == "abdefg") return "6";
+    else if(input == "acf" || input.length() == 3) return "7";
+    else if(input == "abcdefg" || input.length() == 7) return "8";
+    else if(input == "abcdfg") return "9";
+    
+    
+
+    return "-1";
+}
+
+string seg3(vector<string> input, vector<string> output){
+    string one,four,seven;
+    for (int i = 0; i < input.size(); i++) {
+        if (input[i].length() == 2) {
+            one = input[i];
+        } else if (input[i].length() == 4) {
+            four = input[i];
+        } else if(input[i].length() == 3){
+            seven = input[i];
+        }
+    }
+    map<char,int> kart;
+    kart['a'] = 0;
+    kart['b'] = 0;
+    kart['c'] = 0;
+    kart['d'] = 0;
+    kart['e'] = 0;
+    kart['f'] = 0;
+    kart['g'] = 0;
+    map<int,char> mapping;
+    string a = "abcdefg";
+    for (int i = 0; i < input.size(); i++)
+    {
+        for (int j = 0; j < input[i].length(); j++)
+        {
+            kart[input[i][j]]++;
+        }
+    }
+    for (int i = 0; i < a.length(); i++)
+    {
+        if (kart[a[i]] == 6) {
+            mapping[2] = a[i];
+        } else if(kart[a[i]] == 4){
+            mapping[5] = a[i];
+        } else if(kart[a[i]] == 9){
+            mapping[6] = a[i];
+        }
+    } 
+    for (int i = 0; i < one.length(); i++)
+    {
+        if (one[i] != mapping[6])
+        {
+            mapping[3] = one[i];
+        }
+    }
+    for (int i = 0; i < seven.length(); i++)
+    {
+        if (seven[i] != mapping[3] && seven[i] != mapping[6])
+        {
+            mapping[1] = seven[i];
+        }
+        
+    }
+    for (int i = 0; i < four.length(); i++)
+    {
+        if (four[i] != mapping[2] && four[i] != mapping[3] && four[i] != mapping[6])
+        {
+            mapping[4] = four[i];
+        }
+    }
+    bool key = false;
+    char curr;
+    int ll = 0;
+    int currInt = 0;
+    for (int i = 0; i < a.length(); i++)
+    {
+        currInt = 0;
+        for (int j = 1; j < mapping.size() + 1; j++)
+        {
+            if (a[i] != mapping[j])
+            {
+                currInt++;
+            } else {
+                break;
+            }
+        }
+        if (currInt == mapping.size())
+        {
+            mapping[7] = a[i];
             break;
         }
     }
-    if (val == zero) return 0;
-    else if(val == one) return 1;
-    else if(val == two) return 2;
-    else if(val == three) return 3;
-    else if(val == four) return 4;
-    else if(val == five) return 5;
-    else if(val == six) return 6;
-    else if(val == seven) return 7;
-    else if(val == eight) return 8;
-    else if(val == nine) return 9;
-
-    return 0;
+    
+    map<char,char> translation;
+    for (int i = 0; i < a.length(); i++)
+    {
+        translation[a[i]] = mapping[i + 1];
+    }
+    
+    string result = "";
+    for (int i = 0; i < output.size(); i++)
+    {
+        string tmpo = "";
+        for (int j = 0; j < output[i].length(); j++)
+        {
+            tmpo += translation[output[i][j]];
+        }
+        seg2(tmpo) != "-1" ? result += seg2(tmpo) : result += ""; 
+    }
+    
+    return result;
 }
 
 int main(){
     ifstream myFile;
-    myFile.open("input.txt");
+    myFile.open("input2.txt");
     vector<string> data;
     if (myFile.is_open())
     {
@@ -62,8 +157,8 @@ int main(){
     }
     int counter = 0;
     string tmp = "";
-    vector<vector<string>> input(200,vector<string>(0));
-    vector<vector<string>> output(200,vector<string>(0));
+    vector<vector<string>> input(11,vector<string>(0));
+    vector<vector<string>> output(11,vector<string>(0));
     for (int i = 0; i < data.size() - 1; i++)
     {
         for (int j = 0; j < 10; j++)
@@ -82,33 +177,28 @@ int main(){
     {
         for (int j = 0; j < output[i].size(); j++)
         {
-            if (seg(output[i][j]) == 1)
+            string thi = seg2(output[i][j]);
+            if (seg2(output[i][j]) == "1")
             {
                 times++;
-            } else if (seg(output[i][j]) == 4)
+            } else if (seg2(output[i][j]) == "4")
             {
                 times++;
-            } else if (seg(output[i][j]) == 7)
+            } else if (seg2(output[i][j]) == "7")
             {
                 times++;
-            } else if (seg(output[i][j]) == 8)
+            } else if (seg2(output[i][j]) == "8")
             {
                 times++;
             }
         }
     }
     cout << times << endl; 
-    cout << seg("gfecba") << endl;
-    cout << seg("fc") << endl;
-    cout << seg("dcega") << endl;
-    cout << seg("acdfg") << endl;
-    cout << seg("bcdf") << endl;
-    cout << seg("abdfg") << endl;
-    cout << seg("abdefg") << endl;
-    cout << seg("acf") << endl;
-    cout << seg("abcdefg") << endl;
-    cout << seg("abcdfg") << endl;
     
+    for (int i = 0; i < 10; i++)
+    {
+        cout << seg3(input[i], output[i]) << endl;
+    }
     
     
     return 0;
