@@ -1,6 +1,6 @@
-.vscode
+
+.vscode/launch.json
+.vscode/tasks.json
 *.exe
-*.ilk
-*.obj
-*.pdb
-*.pdb
+day8/day8.exe
+*.exe

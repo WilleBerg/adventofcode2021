@@ -125,9 +125,9 @@ string seg3(vector<string> input, vector<string> output){
     map<char,char> translation;
     for (int i = 0; i < a.length(); i++)
     {
-        translation[a[i]] = mapping[i + 1];
+        translation[mapping[i + 1]] = a[i];
     }
-    
+
     string result = "";
     for (int i = 0; i < output.size(); i++)
     {
@@ -144,7 +144,7 @@ string seg3(vector<string> input, vector<string> output){
 
 int main(){
     ifstream myFile;
-    myFile.open("input2.txt");
+    myFile.open("input.txt");
     vector<string> data;
     if (myFile.is_open())
     {
@@ -157,8 +157,8 @@ int main(){
     }
     int counter = 0;
     string tmp = "";
-    vector<vector<string>> input(11,vector<string>(0));
-    vector<vector<string>> output(11,vector<string>(0));
+    vector<vector<string>> input(200,vector<string>(0));
+    vector<vector<string>> output(200,vector<string>(0));
     for (int i = 0; i < data.size() - 1; i++)
     {
         for (int j = 0; j < 10; j++)
@@ -194,12 +194,12 @@ int main(){
         }
     }
     cout << times << endl; 
-    
-    for (int i = 0; i < 10; i++)
+    int resultingSum = 0;
+    for (int i = 0; i < 200; i++)
     {
-        cout << seg3(input[i], output[i]) << endl;
+        resultingSum += stoi(seg3(input[i],output[i]));
     }
-    
+    cout << resultingSum << endl;
     
     return 0;
 }
