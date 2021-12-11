@@ -45,7 +45,7 @@ int main(){
     createMaps(&karta1, &karta2, &isClosing, &karta3);
     ifstream d;
     vector<string> v;
-    d.open("input2.txt");
+    d.open("input.txt");
     if (d.is_open())
     {
         while (d)
@@ -58,14 +58,14 @@ int main(){
             }
         }
     }
-    unsigned long score = 0;
+    unsigned long long score = 0;
     bool corrupted = false;
     vector<string> incomplete;
     for (int i = 0; i < v.size(); i++)
     {
         stack<char> emptyMap;
         s = emptyMap;
-        for (int j = 0; j < v[i].size(); j++)
+        for (int j = 0; j < v[i].length(); j++)
         {
             if (!s.empty())
             {
@@ -101,7 +101,7 @@ int main(){
         }
         corrupted = false;
     }
-    vector<unsigned long> scores;
+    vector<unsigned long long> scores;
     for (int i = 0; i < incomplete.size(); i++)
     {
         score = 0;
@@ -112,15 +112,15 @@ int main(){
         }
         scores.push_back(score);
     }
-    int smallest = scores[0];
-    int smallestIndex = 0;
+    unsigned long long smallest = scores[0];
+    unsigned long long smallestIndex = 0;
     bool swi = false;
     for (int i = 0; i < scores.size(); i++)
     {
         smallest = scores[i];
         for (int j = i; j < scores.size(); j++)
         {
-            unsigned long curr = scores[j];
+            unsigned long long curr = scores[j];
             if (curr < smallest)
             {
                 smallest = curr;
@@ -130,16 +130,17 @@ int main(){
         }
         if (swi)
         {
-            unsigned long tmp = scores[i];
+            unsigned long long tmp = scores[i];
             scores[i] = scores[smallestIndex];
             scores[smallestIndex] = tmp;
         }
         swi = false;
         
-        cout << scores[i] << endl;
+        cout << i + 1 << " : " << scores[i] << endl;
     }
     cout << scores.size() << endl << ((scores.size() + 1) / 2 ) - 1 << endl;
     cout << scores[((scores.size() + 1) / 2) - 1] << endl;
+    
     //cout << score << endl;
     return 0;
 }
