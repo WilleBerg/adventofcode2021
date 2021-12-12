@@ -8,7 +8,7 @@ using namespace std;
 
 void readInput(vector<string> *d){
     ifstream m;
-    m.open("input2.txt");
+    m.open("input.txt");
     if (m.is_open())
     {
         while (m)
@@ -64,7 +64,7 @@ int main(){
         cout << endl;
     }
     int score = 0;
-    for (int l = 0; l < 100; l++)
+    for (int l = 0; l < 1000; l++)
     {
         vector<pair<int,int>> over9;
         for (int i = 0; i < grid.size(); i++)
@@ -87,9 +87,11 @@ int main(){
                 (over9[i].first > 0), 
                 (over9[i].first < grid.size() - 1),
                 (over9[i].second > 0),
-                (over9[i].second < grid[i].size() - 1),
+                (over9[i].second < 9),
             };
             vector<pair<int,int>> c;
+
+
             c.push_back(pair<int,int>(over9[i].first - 1, over9[i].second));
             c.push_back(pair<int,int>(over9[i].first + 1, over9[i].second));
             c.push_back(pair<int,int>(over9[i].first, over9[i].second - 1));
@@ -98,6 +100,8 @@ int main(){
             c.push_back(pair<int,int>(over9[i].first + 1, over9[i].second + 1));
             c.push_back(pair<int,int>(over9[i].first - 1, over9[i].second + 1));
             c.push_back(pair<int,int>(over9[i].first + 1, over9[i].second - 1));
+
+
             for (int j = 0; j < 4; j++) {
                 if (b[j] && !(contains(over9, c[j]))) {
                     grid[c[j].first][c[j].second]++;
@@ -141,17 +145,20 @@ int main(){
         }
         int over9Size = over9.size();
         score += over9Size;
-        cout << score << endl;
-        /*
-        for (int k = 0; k < grid.size(); k++)
+        cout << "Step " << l + 1 << " : " << score << " : > 9 " << over9Size << endl;
+        if (over9Size == 100)
         {
-            for (int h = 0; h < grid[k].size(); h++)
-            {
-                cout << grid[k][h];
-            }
-            cout << endl;
+            break;
         }
-        */
+        
+    }
+    for (int i = 0; i < grid.size(); i++)
+    {
+        for (int j = 0; j < grid[i].size() ; j++)
+        {
+            cout << grid[i][j];
+        }
+        cout << endl; 
     }
     
     
