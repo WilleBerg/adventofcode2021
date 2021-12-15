@@ -8,9 +8,9 @@
 
 using namespace std;
 
-void readInput(vector<string> *d){
+void readInput(vector<string> *d, string fileName){
     fstream file;
-    file.open("input2.txt");
+    file.open(fileName);
     if (file.is_open())
     {
         while (file)
@@ -57,21 +57,29 @@ char itoc(int a){
     return b[a];
 }
 
-/*
+
 class Node{
     public:
-        int x,y,val;
+        pair<int,int> a;
+        int val;
         bool visited;
-        Node(int xa, int ya, long vala)
-            : x(xa), y(ya), val(vala)
+        Node(pair<int,int> b, long vala)
+            : a(b), val(vala)
         {}
 };  
-*/
 
-long calculateDist(pair<int,int> curr, pair<int,int> neigh, vector<string> data, map<pair<int,int>, long> *m, map<pair<int,int>, bool> *hasVisited){
+class CompareVal{
+    public:
+        bool operator()(Node a, Node b){
+            return a.val > b.val;
+        }
+};
+
+long calculateDist(pair<int,int> curr, pair<int,int> neigh, vector<string> data, map<pair<int,int>, long> *m, map<pair<int,int>, pair<int,int>> *n){
     int neighVal = ctoi(data[neigh.first][neigh.second]);
-    if (neighVal + (*m)[pair<int,int>(curr.first, curr.second)] < (*m)[pair<int,int>(neigh.first, neigh.second)])
+    if (neighVal + (*m)[pair<int,int>(curr.first, curr.second)] <= (*m)[pair<int,int>(neigh.first, neigh.second)])
     {
+        (*n)[neigh] = curr;
         return neighVal + (*m)[pair<int,int>(curr.first, curr.second)];
     }
     else return (*m)[pair<int,int>(neigh.first, neigh.second)];
@@ -100,7 +108,7 @@ vector<string> createMap(vector<string> data){
             {
                 int nmbr = ctoi(data[i][j]) + k;
                 int nmbr2 = 9 - nmbr;
-                if (nmbr2 <= 0)
+                if (nmbr2 < 0)
                 {
                     nmbr = abs(nmbr2);
                 }
@@ -108,27 +116,42 @@ vector<string> createMap(vector<string> data){
             }
         }
     }
-    
-    for (int i = 0; i < result.size(); i++)
+    int resultSize = result.size();
+    for (int l = 1; l < 5; l++)
     {
-        for (int j = 0; j < result[i].length(); j++)
-        {
-            cout << result[i][j];
+        for (int i = 0; i < resultSize; i++)
+        {   
+            string tmp = "";
+            for (int j = 0; j < result[i].length(); j++)
+            {
+                int nmbr = ctoi(result[i][j]) + l;
+                int nmbr2 = 9 - nmbr;
+                if (nmbr2 < 0)
+                {
+                    nmbr = abs(nmbr2);
+                }
+                tmp += itoc(nmbr);
+            }
+            result.push_back(tmp);
         }
-        cout << endl;
     }
-    
-
     return result;
 }
 
 int main(){
     vector<string> data;
-    readInput(&data); 
-    queue<pair<int,int>> q;
+    vector<string> testData;
+    readInput(&testData, "input3.txt");
+    readInput(&data, "input.txt"); 
+
+    priority_queue<Node, vector<Node>, CompareVal> q;
     map<pair<int,int>, long> m;
     map<pair<int,int>, bool> hasVisited;
     map<pair<int,int>, bool> isInQueue;
+    map<pair<int,int>, pair<int,int>> name;
+
+    data = createMap(data);
+
     for (int i = 0; i < data.size(); i++)
     {
         for (int j = 0; j < data[i].size(); j++)
@@ -139,78 +162,86 @@ int main(){
             isInQueue[a] = false;
         }
     }
+
     pair<int,int> start(0,0);
     m[start] = 0;
+    name[start] = pair<int,int>(0,0);
     hasVisited[start] = true;
-    vector<string> test = createMap(data);
-
-    return 0;
+    
 
     int width = data[0].size();
     int height = data.size();
+
     int trues = 0;
     int falses = 0;
-    q.push(start);
+
+    long iterations = 0;
+
+    Node startingNode = {start, 0};
+    q.push(startingNode);
     isInQueue[start] = true;
-    while(!q.empty()){
-        pair<int,int> curr = q.front();
-        if (hasVisited[curr])
-        {
-            //cout << "True : " << trues++ << endl;
-        } else {
-            //cout << "False : " << falses++ << endl;
-        }
-        if (trues == 1000)
-        {
-            cout << "here";
-        }
+    
+    while(!q.empty() && !hasVisited[pair<int,int>(height - 1, width - 1)]){
+
+        Node curr = q.top();
+        iterations++;
         
         q.pop();
-        if (curr.second + 1 < width && !hasVisited[pair<int,int>(curr.first,curr.second + 1)]) {    
-            pair<int,int> b(curr.first, curr.second + 1);
-            long distance = calculateDist(curr, b, data, &m, &hasVisited);
+        if (curr.a.second + 1 < width && !hasVisited[pair<int,int>(curr.a.first, curr.a.second + 1)]) {    
+            pair<int,int> b(curr.a.first, curr.a.second + 1);
+            long distance = calculateDist(curr.a, b, data, &m, &name);
+            Node b2 = {b, distance};
             m[b] = distance;
             if (!isInQueue[b])
             {
-                q.push(b);
+                q.push(b2);
                 isInQueue[b] = true;
             }
         }
-        if(curr.second - 1 > 0 && !hasVisited[pair<int,int>(curr.first,curr.second - 1)]){
-            pair<int,int> b(curr.first, curr.second - 1);
-            long distance = calculateDist(curr, b, data, &m, &hasVisited);
+        if(curr.a.second - 1 > 0 && !hasVisited[pair<int,int>(curr.a.first,curr.a.second - 1)]){
+            pair<int,int> b(curr.a.first, curr.a.second - 1);
+            long distance = calculateDist(curr.a, b, data, &m, &name);
+            Node b2 = {b, distance};
             m[b] = distance;
             if (!isInQueue[b])
             {
-                q.push(b);
+                q.push(b2);
                 isInQueue[b] = true;
             }
         }
-        if (curr.first + 1 < height && !hasVisited[pair<int,int>(curr.first + 1,curr.second)]){
-            pair<int,int> b(curr.first + 1, curr.second);
-            long distance = calculateDist(curr, b, data, &m, &hasVisited);
+        if (curr.a.first + 1 < height && !hasVisited[pair<int,int>(curr.a.first + 1,curr.a.second)]){
+            pair<int,int> b(curr.a.first + 1, curr.a.second);
+            long distance = calculateDist(curr.a, b, data, &m, &name);
+            Node b2 = {b, distance};
             m[b] = distance;
             if (!isInQueue[b])
             {
-                q.push(b);
+                q.push(b2);
                 isInQueue[b] = true;
             }
         }
-        if (curr.first - 1 > 0 && !hasVisited[pair<int,int>(curr.first - 1,curr.second)]){
-            pair<int,int> b(curr.first - 1, curr.second + 1);
-            long distance = calculateDist(curr, b, data, &m, &hasVisited);
+        if (curr.a.first - 1 > 0 && !hasVisited[pair<int,int>(curr.a.first - 1,curr.a.second)]){
+            pair<int,int> b(curr.a.first - 1, curr.a.second);
+            long distance = calculateDist(curr.a, b, data, &m, &name);
+            Node b2 = {b, distance};
             m[b] = distance;
             if (!isInQueue[b])
             {
-                q.push(b);
+                q.push(b2);
                 isInQueue[b] = true;
             }
         }  
-        hasVisited[curr] = true; 
-        isInQueue[curr] = false; 
+        hasVisited[curr.a] = true; 
+        isInQueue[curr.a] = false; 
     }
-
-    cout << m[pair<int,int>(height - 1, width - 1)] << endl;
+    pair<int,int> testi = name[pair<int,int>(height - 1, width - 1)];
+    while (testi != pair<int,int>(0,0))
+    {
+        data[testi.first][testi.second] = 'X';
+        testi = name[pair<int,int>(testi.first,testi.second)];
+    }
+    
+    cout << "Cheapest path => " <<  m[pair<int,int>(height - 1, width - 1)] << " Iterations => " << iterations << endl;
 
     return 0;
 }
