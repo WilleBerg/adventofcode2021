@@ -63,6 +63,7 @@ class Node{
         pair<int,int> a;
         int val;
         bool visited;
+        
         Node(pair<int,int> b, long vala)
             : a(b), val(vala)
         {}
@@ -141,7 +142,7 @@ vector<string> createMap(vector<string> data){
 int main(){
     vector<string> data;
     vector<string> testData;
-    readInput(&testData, "input3.txt");
+    //readInput(&testData, "input3.txt");
     readInput(&data, "input.txt"); 
 
     priority_queue<Node, vector<Node>, CompareVal> q;
